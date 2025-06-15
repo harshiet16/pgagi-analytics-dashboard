@@ -1,28 +1,24 @@
-// src/pages/weather.tsx
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
-import Chart from '../components/Chart';
 import { fetchWeather } from '../services/weatherService';
 
 const WeatherPage: React.FC = () => {
   const [weatherData, setWeatherData] = useState<any>(null); 
-  const [forecastData, setForecastData] = useState<any[]>([]);
-  const [city, setCity] = useState<string>('Delhi'); 
+  const [city, setCity] = useState<string>('Delhi'); // Default city is 'Delhi'
 
   useEffect(() => {
     const getWeatherData = async () => {
       try {
         const data = await fetchWeather(city); 
         console.log('Fetched weather data:', data); 
-        setWeatherData(data.currentWeather);
-        setForecastData(data.forecast);
+        setWeatherData(data.currentWeather); // Set current weather data
       } catch (error) {
         console.error('Error fetching weather data:', error);
       }
     };
 
-    getWeatherData();
+    getWeatherData(); // Fetch weather when city changes
   }, [city]); 
 
   const handleGeolocation = () => {
@@ -30,9 +26,8 @@ const WeatherPage: React.FC = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          const data = await fetchWeather({ lat: latitude, lon: longitude });
+          const data = await fetchWeather(`${latitude},${longitude}`); // Send lat, lon for geolocation
           setWeatherData(data.currentWeather);
-          setForecastData(data.forecast);
         },
         (error) => {
           console.error('Geolocation error:', error);
@@ -78,13 +73,6 @@ const WeatherPage: React.FC = () => {
           </div>
         ) : (
           <p className="text-xl text-gray-400">Loading current weather data...</p>
-        )}
-
-        <h2 className="text-2xl font-bold mb-4 mt-8">7-Day Forecast</h2>
-        {forecastData.length > 0 ? (
-          <Chart data={forecastData} dataKey="temp.day" xKey="dt" />
-        ) : (
-          <p className="text-xl text-gray-400">Loading 7-day forecast...</p>
         )}
       </div>
     </div>

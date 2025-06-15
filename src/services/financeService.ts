@@ -1,41 +1,36 @@
 import axios from 'axios';
 
+// Create an Axios instance for Alpha Vantage API
 const financeApi = axios.create({
   baseURL: 'https://www.alphavantage.co/query',
 });
 
+// Fetch stock data for a given symbol
 export const fetchStockData = async (symbol: string) => {
   try {
     const response = await financeApi.get('', {
       params: {
         function: 'TIME_SERIES_DAILY',
-        symbol: symbol,
-        apikey: 'RNC1B326X1F9UO87',
+        symbol,
+        apikey: 'EWUJN777SOO95FQM', // Hardcoded API key (not recommended for production)
       },
     });
 
-    console.log('API Response:', response.data);
-
+    // Handle missing or erroneous data
     const data = response.data['Time Series (Daily)'];
     if (!data) {
-      console.error('Time Series (Daily) data not found in response:', response.data);
-      throw new Error('Time Series data not found');
+      throw new Error('No data found for this symbol or invalid API response');
     }
 
-    const formattedData = Object.keys(data).map(date => ({
+    // Format data for the chart
+    const formattedData = Object.keys(data).map((date) => ({
       date,
-      price: parseFloat(data[date]['4. close']),
+      price: parseFloat(data[date]['4. close']), // Ensure price is a float
     }));
 
     return formattedData;
-  } catch (error: any) {
-    console.error('Error fetching stock data:', error.message || error);
-    
-    if (error.isAxiosError) {
-      console.error('API call failed with status code:', error.response?.status);
-      console.error('API error details:', error.response?.data);
-    }
-    
+  } catch (error) {
+    console.error('Error fetching stock data:', error);
     throw new Error('Error fetching stock data');
   }
 };
